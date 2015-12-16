@@ -1,0 +1,5 @@
+#!/bin/sh
+# (c) 2015 Steven <smuth@example.com>
+# CC-BY-SA http://smuth.me/posts/check_mk-and-freenas-pt-3.html
+echo "<<<iostat>>>"
+iostat -xI | grep da

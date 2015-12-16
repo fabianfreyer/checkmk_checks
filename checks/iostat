@@ -1,0 +1,45 @@
+#!/usr/bin/python
+# (c) 2015 Steven <smuth@example.com>
+# CC-BY-SA http://smuth.me/posts/check_mk-and-freenas-pt-3.html
+def check_iostat(item, params, info):
+    warn, crit = params or (9999,99999)
+    this_time = time.time()
+    for line in info:
+        if line[0] == item:
+            try:
+                timedif, read_ps = get_counter("iostat.%s.readps" % item, this_time, savefloat(line[1]))
+                timedif, write_ps = get_counter("iostat.%s.writeps" % item, this_time, savefloat(line[2]))
+                timedif, read_kb_ps = get_counter("iostat.%s.readkbps" % item, this_time, savefloat(line[3]))
+                timedif, write_kb_ps = get_counter("iostat.%s.writekbps" % item, this_time, savefloat(line[4]))
+                read_ps = round(read_ps, 2)
+                write_ps = round(write_ps, 2)
+                read_kb_ps = round(read_kb_ps, 2)
+                write_kb_ps = round(write_kb_ps, 2)
+            except MKCounterWrapped:
+                read_ps = 0.0
+                write_ps = 0.0
+                read_kb_ps = 0.0
+                write_kb_ps = 0.0
+            data = [('qlen', line[5]),
+                    ('svc_t', line[6]),
+                    ('busy', line[7]),
+                    ('readps', read_ps),
+                    ('writeps', write_ps),
+                    ('readkbps', read_kb_ps, warn, crit, 0, ""),
+                    ('writekbps', write_kb_ps, warn, crit, 0, "")]
+            if read_kb_ps > crit or write_kb_ps > crit:
+                return (2, "%s kb/s read, %s kb/s write" % (read_kb_ps, write_kb_ps), data)
+            elif read_kb_ps > warn or write_kb_ps > warn:
+                return (1, "%s kb/s read, %s kb/s write" % (read_kb_ps, write_kb_ps), data)
+            else:
+                return (0, "%s kb/s read, %s kb/s write" % (read_kb_ps, write_kb_ps), data)
+
+def inventory_iostat(info):
+    return [(line[0], (9999, 99999)) for line in info]
+
+check_info["iostat"] = {
+    'check_function':            check_iostat,
+    'inventory_function':        inventory_iostat,
+    'service_description':       'iostat drive %s',
+    'has_perfdata':              True
+}
