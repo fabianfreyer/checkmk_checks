@@ -1,0 +1,84 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+
+smbstatus_shares_default_levels = (50, 100)
+
+def inventory_smbstatus_shares(info):
+    for line in info:
+        if line[0] == 'shares:':
+            return [(None, 'smbstatus_shares_default_levels')]
+
+def check_smbstatus_shares(_no_item, params, info):
+    warn, crit = params
+    for line in info:
+        if line[0] == 'shares:':
+           shares = int(line[1])
+           data = [('shares', shares, warn, crit)]
+           if shares > crit:
+               return (2, 'smbstatus.shares is %d' % shares, data)
+           elif shares > warn:
+               return (1, 'smbstatus.shares is %d' % shares, data)
+           else:
+               return (0, 'smbstatus.shares is %d' % shares, data)
+
+check_info['smbstatus.shares'] = {
+    'check_function'         : check_smbstatus_shares,
+    'inventory_function'     : inventory_smbstatus_shares,
+    'service_description'    : 'Currently used samba shares',
+    'has_perfdata'           : True,
+    'group'                  : 'samba',
+}
+
+smbstatus_users_default_levels = ( 50, 100 )
+def inventory_smbstatus_users(info):
+    for line in info:
+        if line[0] == 'users:':
+            return [(None, 'smbstatus_users_default_levels')]
+
+def check_smbstatus_users(item, params, info):
+    warn, crit = params
+    for line in info:
+        if line[0] == 'users:':
+           users = int(line[1])
+           data = [('users', users, warn, crit)]
+           if users > crit:
+               return (2, 'smbstatus.users is %d' % users, data)
+           elif users > warn:
+               return (1, 'smbstatus.users is %d' % users, data)
+           else:
+               return (0, 'smbstatus.users is %d' % users, data)
+
+check_info['smbstatus.users'] = {
+    'check_function'         : check_smbstatus_users,
+    'inventory_function'     : inventory_smbstatus_users,
+    'service_description'    : 'Currently logged in samba accounts',
+    'has_perfdata'           : True,
+    'group'                  : 'samba'
+}
+
+smbstatus_locks_default_levels = ( 1000, 1500 )
+def inventory_smbstatus_locks(info):
+    for line in info:
+        if line[0] == 'locks:':
+            return [(None, 'smbstatus_locks_default_levels')]
+
+def check_smbstatus_locks(item, params, info):
+    warn, crit = params
+    for line in info:
+        if line[0] == 'locks:':
+           locks = int(line[1])
+           data = [('locks', locks, warn, crit)]
+           if locks > crit:
+               return (2, 'smbstatus.locks is %d' % locks, data)
+           elif locks > warn:
+               return (1, 'smbstatus.locks is %d' % locks, data)
+           else:
+               return (0, 'smbstatus.locks is %d' % locks, data)
+
+check_info['smbstatus.locks'] = {
+    'check_function'         : check_smbstatus_locks,
+    'inventory_function'     : inventory_smbstatus_locks,
+    'service_description'    : 'Currently acquired samba locks',
+    'has_perfdata'           : True,
+    'group'                  : 'samba'
+}

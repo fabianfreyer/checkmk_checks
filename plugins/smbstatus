@@ -1,0 +1,5 @@
+#!/bin/sh
+echo '<<<smbstatus>>>'
+echo shares: `smbstatus -S | grep -v "^$" | tail -n +3 | wc -l` 
+echo users: `smbstatus -bn | grep -v "^$" | tail -n +3 | wc -l` 
+echo locks: `smbstatus -L | grep -v "^$" | tail -n +3 | wc -l` 
